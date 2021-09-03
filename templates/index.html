@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    {% if error %}
+    <div class="alert alert-danger text-center" role="alert">
+        {{error}}
+    </div>
+    {% endif %}
+
+    {% if not headers %}
+    <div class="header-section">
+        <div class="container">
+            <div class="header-title">
+                <img src="https://hustlestudio.academix.in/img/icons/sticky-note.png" alt="">
+                <h2>ML Classification from CSV</h2>
+            </div>
+            <div class="header-title">
+                <p>A Machine Learning Classification pipeline using 4 of the best machine learning algorithms! Get the precision, recall and accuracy for upto 10 classification categories!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="file-input-section">
+        <div class="container">
+            <div id="file-input">
+                <div class="file-input-inner">
+                    <img src="https://hustlestudio.academix.in/img/icons/design-thinking.png" alt="">
+                    <button id="csv-button" class="btn">Choose CSV File</button>
+                    <form id="csv-form" action="/" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" id="csvfile" name="csvfile" accept="application/csv,.csv" style="display: none;" required>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+    <div class="data-section">
+        <div class="container">
+            {% if not t_var %}
+            <form action="/" method="post">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <h5>Target Variable</h5>
+                    <select class="form-select" id="target-variable" name="target-variable">
+                        <option selected>Open this select menu</option>
+                        {% for header in headers %}
+                            <option value="{{header}}">{{header}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="btn btn-primary">Continue</button>
+
+            </form>
+            {% else %}
+                {% if not outlier %}
+                    {% if not drop_column %}
+                        <form action="/" method="post">
+                            {% csrf_token %}
+
+                            <div class="form-group mb-3">
+                                <h5>Drop column (We recommend dropping primary keys like id)</h5>
+                                {% for col in headers %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="drop-column{{ forloop.counter }}" value="{{col}}" name="drop-column[]">
+                                    <label class="form-check-label" for="drop-column{{ forloop.counter }}">{{col}}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            {% if isnull_count %}
+                            <div class="form-group mb-3">
+                                <h5>What would you like to do if there are null value in your column?</h5>
+                                
+                                {% for col, type, count in isnull %}
+                                    <div style="margin-bottom: 10px;">
+                                        <p style="margin-bottom: 2px;">{{ col }} - {% if type == 0 %}Integer data{% elif type == 1 %}Floating Point data{% else %}Categorical data{% endif %} - (Null values = {{ count }})</p>
+                                        {% if type == 0 %}
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row1{{ forloop.counter }}" value="mean" required>
+                                                <label class="form-check-label" for="null-row1{{ forloop.counter }}">Replace with Mean</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row2{{ forloop.counter }}" value="median">
+                                                <label class="form-check-label" for="null-row2{{ forloop.counter }}">Replace with Median</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row3{{ forloop.counter }}" value="mode">
+                                                <label class="form-check-label" for="null-row3{{ forloop.counter }}">Replace with Mode</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row4{{ forloop.counter }}" value="drop">
+                                                <label class="form-check-label" for="null-row4{{ forloop.counter }}">Drop the rows</label>
+                                            </div>
+                                        {% elif type == 1 %}
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row1{{ forloop.counter }}" value="mean" required>
+                                                <label class="form-check-label" for="null-row1{{ forloop.counter }}">Replace with Mean</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row4{{ forloop.counter }}" value="drop">
+                                                <label class="form-check-label" for="null-row4{{ forloop.counter }}">Drop the rows</label>
+                                            </div>
+                                        {% else %}
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row1{{ forloop.counter }}" value="mode" required>
+                                                <label class="form-check-label" for="null-row1{{ forloop.counter }}">Replace with Most Frequent</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="null-row{{ forloop.counter0 }}" id="null-row2{{ forloop.counter }}" value="drop">
+                                                <label class="form-check-label" for="null-row2{{ forloop.counter }}">Drop the rows</label>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <button class="btn btn-primary">Continue</button>
+                        </form>
+
+                        {% if isnull_count %}
+                        <div class="alert alert-info mt-3">
+                            Null Values - Null Values are the values that are blank in the dataset. This is not to be confused with 0s in the dataset. These values are necessary to fill or remove, as they are of no value in the dataset and may damage the model. You can learn more about null values <a target="_blank" href="https://www.geeksforgeeks.org/working-with-missing-data-in-pandas">here</a>.
+                        </div>
+                        {% endif %}
+
+                    {% else %}
+                        <form action="/" method="post">
+                            {% csrf_token %}
+                            <h5>What would you like to do if there are Outlier in your column?</h5>
+
+                            {% for col, type, count in outliers_val %}
+                                <div style="margin-bottom: 10px;">
+                                    <p style="margin-bottom: 2px;">{{ col }} - {% if type == 0 %}Integer data{% elif type == 1 %}Floating Point data{% else %}Categorical data{% endif %} - (Outlier values = {{ count }})</p>
+                                    {% if type == 0 %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row1{{ forloop.counter }}" value="mean" required>
+                                            <label class="form-check-label" for="outlier-row1{{ forloop.counter }}">Replace with Mean</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row2{{ forloop.counter }}" value="median">
+                                            <label class="form-check-label" for="outlier-row2{{ forloop.counter }}">Replace with Median</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row3{{ forloop.counter }}" value="mode">
+                                            <label class="form-check-label" for="outlier-row3{{ forloop.counter }}">Replace with Mode</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row4{{ forloop.counter }}" value="drop">
+                                            <label class="form-check-label" for="outlier-row4{{ forloop.counter }}">Drop the rows</label>
+                                        </div>
+                                    {% elif type == 1 %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row1{{ forloop.counter }}" value="mean" required>
+                                            <label class="form-check-label" for="outlier-row1{{ forloop.counter }}">Replace with Mean</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row4{{ forloop.counter }}" value="drop">
+                                            <label class="form-check-label" for="outlier-row4{{ forloop.counter }}">Drop the rows</label>
+                                        </div>
+                                    {% else %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row1{{ forloop.counter }}" value="mode" required>
+                                            <label class="form-check-label" for="outlier-row1{{ forloop.counter }}">Replace with Most Frequent</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="outlier-row{{ forloop.counter0 }}" id="outlier-row2{{ forloop.counter }}" value="drop">
+                                            <label class="form-check-label" for="outlier-row2{{ forloop.counter }}">Drop the rows</label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+
+                            <button class="btn btn-primary">Continue</button>
+
+                        </form>
+                        <div class="alert alert-info mt-3">
+                            Outliers - Outliers are value points that differs significantly from other observations in the dataset. An outlier may be due to variability in the measurement or it may indicate experimental error. Not all outliers are bad tho. Learn more about outliers <a target="_blank" href="https://en.wikipedia.org/wiki/Outlier">here</a>. Outliers are measured using Z-Score here, with Z >3 displayed as an outlier.
+                        </div>
+                    {% endif %}
+                {% else %}
+                    {% if heatmap %}
+                        <h3>Final Predictions</h3>
+                        <h5>SVC</h5>
+                        <p>Accuracy - <b>{{final.0.0}}%</b></p>
+                        <p>Recall - <b>{{final.0.1}}%</b></p> 
+                        <p>Precision - <b>{{final.0.2}}%</b></p>
+                        <br>
+                        <h5>RFC</h5>
+                        <p>Accuracy - <b>{{final.1.0}}%</b></p> 
+                        <p>Recall - <b>{{final.1.1}}%</b></p>
+                        <p>Precision - <b>{{final.1.2}}%</b></p>
+                        <br>
+                        <h5>DTC</h5>
+                        <p>Accuracy - <b>{{final.2.0}}%</b></p> 
+                        <p>Recall - <b>{{final.2.1}}%</b></p>
+                        <p>Precision - <b>{{final.2.2}}%</b></p>
+                        <br>
+                             
+                        {% if final.3 %}
+                            <h5>XGB</h5>
+                            <p>Accuracy - <b>{{final.3.0}}%</b></p> 
+                            <p>Recall - <b>{{final.3.1}}%</b></p>
+                            <p>Precision - <b>{{final.3.2}}%</b></p>
+                        {% endif %}
+                        <div class="alert alert-info mt-3">
+                            <h4>Accuracy, Precision and Recall</h4>
+                            <p>Learn about their meanings and differences between Accuracy, Precision and Recall <a target="_blank" href="https://machinelearningmastery.com/precision-recall-and-f-measure-for-imbalanced-classification">here</a>.</p>
+                            <p>The hyperparameter 'average' for precision and recall has been set to 'macro'. Learn more <a target="_blank" href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.htmln">here</a>.</p>
+                            <p>If you are using labels that are not in range of [0,num_class), XGboost might give an error. Read <a target="_blank" href = 'https://stackoverflow.com/questions/48414481/xgboost-error-label-must-be-in-0-num-class-num-class-2'> for more details.</p>
+                        </div>
+                    {% else %}
+                    
+                        <h5>Heatmap</h5>
+                        <img src="{% get_media_prefix %}{{ heatmap_temp }}">
+                        <br>
+                        <form action="/" method="post">
+                            {% csrf_token %}
+
+                            <div class="tick-slider mb-3">
+                                <div class="tick-slider-header">
+                                    <h5>Train Test Split</h5>
+                                </div>
+                                <div class="tick-slider-value-container">
+                                    <div id="weightLabelMin" class="tick-slider-label">50</div>
+                                    <div id="weightLabelMax" class="tick-slider-label">90</div>
+                                    <div id="weightValue" class="tick-slider-value"></div>
+                                </div>
+                                <div class="tick-slider-background"></div>
+                                <div id="weightProgress" class="tick-slider-progress"></div>
+                                <div id="weightTicks" class="tick-slider-tick-container"></div>
+                                <input name="train-test" id="weightSlider" class="tick-slider-input" type="range" min="50" max="90" step="5"
+                                    value="70" data-tick-step="5" data-tick-id="weightTicks" data-value-id="weightValue"
+                                    data-progress-id="weightProgress" data-handle-size="18" data-min-label-id="weightLabelMin"
+                                    data-max-label-id="weightLabelMax" />
+                            </div>
+                            <br>
+                            <div class="form-group mb-3">
+                                <h5>Drop column</h5>
+                                {% for col in headers %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="drop-column{{ forloop.counter }}" value="{{col}}" name="drop-column[]">
+                                    <label class="form-check-label" for="drop-column{{ forloop.counter }}">{{col}}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <input class="form-check-input" type="hidden" id="heatmap" value="true" name="heatmap">
+            
+                            <button class="btn btn-primary">Continue</button>
+                            
+                            <div class="alert alert-info mt-3">
+                                <p>Heatmap - A correlation heatmap is a way to visualize the correlations between features using a gradient. Highly correlated features might harm the model. You can learn more about features correlations  <a target="_blank" href="https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4r">here</a>.</p>
+                            </div>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {% endif %}
+    {% endblock %}
+    
+    {% block script %}
+    <script>
+        $('#csv-button').on('click', () => {
+            $('#csvfile').click();
+        })
+
+        $('#csvfile').on('change', () => {
+            console.log("File Uploaded")
+            $('#csv-form').submit();        
+        })
+
+        if (window.File && window.FileList && window.FileReader) {
+            console.log("File API is available");
+            fileInit();
+        }
+
+        //
+        // initialize
+        function fileInit() {
+            console.log("Initialization Call");
+
+            var fileselect = $("#csvfile"),
+                filedrag = $(".file-input-inner");
+
+            // file select
+            fileselect.on("change", FileSelectHandler);
+
+            // is XHR2 available?
+            var xhr = new XMLHttpRequest();
+            if (xhr.upload) {
+                console.log("xhr.upload");
+                console.log(filedrag)
+                // file drop
+                filedrag.on("dragover", FileDragHover);
+                filedrag.on("dragleave", FileDragHover);
+                filedrag.on("drop", FileSelectHandler);
+                // filedrag.style.display = "block";
+            }
+
+        }
+
+        function FileDragHover(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if(e.target.className.includes("file-input-inner")){
+                e.target.className = (e.type == "dragover" ? "file-input-inner drag" : "file-input-inner");
+            }
+        }
+
+        function FileSelectHandler(e) {
+            console.log(e.target)
+
+            // cancel event and hover styling
+            FileDragHover(e);
+
+            // fetch FileList object
+            var files = e.target.files || e.dataTransfer.files;
+
+            // process all File objects
+            for (var i = 0, f; f = files[i]; i++) {
+                ParseFile(f);
+            }
+        }
+
+        // function ParseFile(file) {
+        //     Output(
+        //         "<p>File information: <strong>" + file.name +
+        //         "</strong> type: <strong>" + file.type +
+        //         "</strong> size: <strong>" + file.size +
+        //         "</strong> bytes</p>"
+        //     );
+        // }
+    </script>
+
+    <script>
+        function init() {
+            const sliders = document.getElementsByClassName("tick-slider-input");
+
+            for (let slider of sliders) {
+                slider.oninput = onSliderInput;
+
+                updateValue(slider);
+                updateValuePosition(slider);
+                updateLabels(slider);
+                updateProgress(slider);
+
+                setTicks(slider);
+            }
+        }
+
+        function onSliderInput(event) {
+            updateValue(event.target);
+            updateValuePosition(event.target);
+            updateLabels(event.target);
+            updateProgress(event.target);
+        }
+
+        function updateValue(slider) {
+            let value = document.getElementById(slider.dataset.valueId);
+
+            value.innerHTML = "<div>" + slider.value + "</div>";
+        }
+
+        function updateValuePosition(slider) {
+            let value = document.getElementById(slider.dataset.valueId);
+
+            const percent = getSliderPercent(slider);
+
+            const sliderWidth = slider.getBoundingClientRect().width;
+            const valueWidth = value.getBoundingClientRect().width;
+            const handleSize = slider.dataset.handleSize;
+
+            let left = percent * (sliderWidth - handleSize) + handleSize / 2 - valueWidth / 2;
+
+            left = Math.min(left, sliderWidth - valueWidth);
+            left = slider.value === slider.min ? 0 : left;
+
+            value.style.left = left + "px";
+        }
+
+        function updateLabels(slider) {
+            const value = document.getElementById(slider.dataset.valueId);
+            const minLabel = document.getElementById(slider.dataset.minLabelId);
+            const maxLabel = document.getElementById(slider.dataset.maxLabelId);
+
+            const valueRect = value.getBoundingClientRect();
+            const minLabelRect = minLabel.getBoundingClientRect();
+            const maxLabelRect = maxLabel.getBoundingClientRect();
+
+            const minLabelDelta = valueRect.left - (minLabelRect.left);
+            const maxLabelDelta = maxLabelRect.left - valueRect.left;
+
+            const deltaThreshold = 32;
+
+            if (minLabelDelta < deltaThreshold) minLabel.classList.add("hidden");
+            else minLabel.classList.remove("hidden");
+
+            if (maxLabelDelta < deltaThreshold) maxLabel.classList.add("hidden");
+            else maxLabel.classList.remove("hidden");
+        }
+
+        function updateProgress(slider) {
+            let progress = document.getElementById(slider.dataset.progressId);
+            const percent = getSliderPercent(slider);
+
+            progress.style.width = percent * 100 + "%";
+        }
+
+        function getSliderPercent(slider) {
+            const range = slider.max - slider.min;
+            const absValue = slider.value - slider.min;
+
+            return absValue / range;
+        }
+
+        function setTicks(slider) {
+            let container = document.getElementById(slider.dataset.tickId);
+            const spacing = parseFloat(slider.dataset.tickStep);
+            const sliderRange = slider.max - slider.min;
+            const tickCount = sliderRange / spacing + 1; // +1 to account for 0
+
+            for (let ii = 0; ii < tickCount; ii++) {
+                let tick = document.createElement("span");
+
+                tick.className = "tick-slider-tick";
+
+                container.appendChild(tick);
+            }
+        }
+
+        function onResize() {
+            const sliders = document.getElementsByClassName("tick-slider-input");
+
+            for (let slider of sliders) {
+                updateValuePosition(slider);
+            }
+        }
+
+        window.onload = init;
+        window.addEventListener("resize", onResize);
+    </script>
+    {% endblock %}
