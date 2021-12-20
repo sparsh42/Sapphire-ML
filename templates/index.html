@@ -185,28 +185,53 @@
                 {% else %}
                     {% if heatmap %}
                         <h3>Final Predictions</h3>
-                        <h5>SVC</h5>
-                        <p>Accuracy - <b>{{final.0.0}}%</b></p>
-                        <p>Recall - <b>{{final.0.1}}%</b></p> 
-                        <p>Precision - <b>{{final.0.2}}%</b></p>
                         <br>
-                        <h5>RFC</h5>
-                        <p>Accuracy - <b>{{final.1.0}}%</b></p> 
-                        <p>Recall - <b>{{final.1.1}}%</b></p>
-                        <p>Precision - <b>{{final.1.2}}%</b></p>
-                        <br>
-                        <h5>DTC</h5>
-                        <p>Accuracy - <b>{{final.2.0}}%</b></p> 
-                        <p>Recall - <b>{{final.2.1}}%</b></p>
-                        <p>Precision - <b>{{final.2.2}}%</b></p>
-                        <br>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <h5>SVC</h5>
+                                <p>Accuracy - <b>{{final.0.0}}%</b></p>
+                                <p>Recall - <b>{{final.0.1}}%</b></p> 
+                                <p>Precision - <b>{{final.0.2}}%</b></p>
+                                <br>
+                            </div>
+                            <div class="col-lg-4">
+                                <h5>RFC</h5>
+                                <p>Accuracy - <b>{{final.1.0}}%</b></p> 
+                                <p>Recall - <b>{{final.1.1}}%</b></p>
+                                <p>Precision - <b>{{final.1.2}}%</b></p>
+                                <br>
+                            </div>
+                            <div class="col-lg-4">
+                                <h5>DTC</h5>
+                                <p>Accuracy - <b>{{final.2.0}}%</b></p> 
+                                <p>Recall - <b>{{final.2.1}}%</b></p>
+                                <p>Precision - <b>{{final.2.2}}%</b></p>
+                                <br>
+                            </div>
+                            <div class="col-lg-4">
+                                <h5>KNN</h5>
+                                <p>Accuracy - <b>{{final.3.0}}%</b></p> 
+                                <p>Recall - <b>{{final.3.1}}%</b></p>
+                                <p>Precision - <b>{{final.3.2}}%</b></p>
+                                <br>
+                            </div>
+                            <div class="col-lg-4">
+                                <h5>LR</h5>
+                                <p>Accuracy - <b>{{final.4.0}}%</b></p> 
+                                <p>Recall - <b>{{final.4.1}}%</b></p>
+                                <p>Precision - <b>{{final.4.2}}%</b></p>
+                                <br>
+                            </div>
+                            <div class="col-lg-4">
+                                {% if final.5 %}
+                                    <h5>XGB</h5>
+                                    <p>Accuracy - <b>{{final.5.0}}%</b></p> 
+                                    <p>Recall - <b>{{final.5.1}}%</b></p>
+                                    <p>Precision - <b>{{final.5.2}}%</b></p>
+                                {% endif %}
+                            </div>
+                        </div>
                              
-                        {% if final.3 %}
-                            <h5>XGB</h5>
-                            <p>Accuracy - <b>{{final.3.0}}%</b></p> 
-                            <p>Recall - <b>{{final.3.1}}%</b></p>
-                            <p>Precision - <b>{{final.3.2}}%</b></p>
-                        {% endif %}
                         <div class="alert alert-info mt-3">
                             <h4>Accuracy, Precision and Recall</h4>
                             <p>Learn about their meanings and differences between Accuracy, Precision and Recall <a target="_blank" href="https://machinelearningmastery.com/precision-recall-and-f-measure-for-imbalanced-classification">here</a>.</p>

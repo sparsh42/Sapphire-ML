@@ -6,6 +6,9 @@
         <div class="alert alert-info text-center" role="alert">
             This dataset is a pre-loaded dataset on Sapphire-ML about water potability, which can be found <a href="https://www.kaggle.com/adityakadiwal/water-potability">here</a>. This dataset provides a complete insight into the workings of Sapphire - such as dealing with null values, outliers and feature correlations.
         </div>
+        <div class="alert alert-danger text-center mb-3" role="alert">
+            Note : Please select Potability as the Target Variable
+        </div>
         <form action="/" method="POST">
             {% csrf_token %}
             <input type="hidden" name="sample" value="true">

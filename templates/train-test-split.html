@@ -1,0 +1,194 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="data-section">
+  <div class="container">
+    {% if error %}
+    <div class="alert alert-danger text-center" role="alert">{{error}}</div>
+    {% endif %}
+    <h5>Heatmap</h5>
+    <img src="{% get_media_prefix %}{{ heatmap_temp }}" />
+    <br />
+    <form action="/train-test-split/" method="post">
+      {% csrf_token %}
+
+      <div class="tick-slider mb-3">
+        <div class="tick-slider-header">
+          <h5>Train Test Split</h5>
+        </div>
+        <div class="tick-slider-value-container">
+          <div id="weightLabelMin" class="tick-slider-label">50</div>
+          <div id="weightLabelMax" class="tick-slider-label">90</div>
+          <div id="weightValue" class="tick-slider-value"></div>
+        </div>
+        <div class="tick-slider-background"></div>
+        <div id="weightProgress" class="tick-slider-progress"></div>
+        <div id="weightTicks" class="tick-slider-tick-container"></div>
+        <input
+          name="train-test"
+          id="weightSlider"
+          class="tick-slider-input"
+          type="range"
+          min="50"
+          max="90"
+          step="5"
+          value="70"
+          data-tick-step="5"
+          data-tick-id="weightTicks"
+          data-value-id="weightValue"
+          data-progress-id="weightProgress"
+          data-handle-size="18"
+          data-min-label-id="weightLabelMin"
+          data-max-label-id="weightLabelMax"
+        />
+      </div>
+      <br />
+      <div class="form-group mb-3">
+        <h5>Drop column</h5>
+        {% for col in headers %}
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="drop-column{{ forloop.counter }}"
+            value="{{col}}"
+            name="drop-column[]"
+          />
+          <label class="form-check-label" for="drop-column{{ forloop.counter }}"
+            >{{col}}</label
+          >
+        </div>
+        {% endfor %}
+      </div>
+      <input
+        class="form-check-input"
+        type="hidden"
+        id="heatmap"
+        value="true"
+        name="heatmap"
+      />
+
+      <button class="btn btn-primary">Continue</button>
+
+      <div class="alert alert-info mt-3">
+        <p>
+          Heatmap - A correlation heatmap is a way to visualize the correlations
+          between features using a gradient. Highly correlated features might
+          harm the model. You can learn more about features correlations
+          <a
+            target="_blank"
+            href="https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4r"
+            >here</a
+          >.
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %} {% block script %}
+
+<script>
+    function init() {
+        const sliders = document.getElementsByClassName("tick-slider-input");
+
+        for (let slider of sliders) {
+            slider.oninput = onSliderInput;
+
+            updateValue(slider);
+            updateValuePosition(slider);
+            updateLabels(slider);
+            updateProgress(slider);
+
+            setTicks(slider);
+        }
+    }
+
+    function onSliderInput(event) {
+        updateValue(event.target);
+        updateValuePosition(event.target);
+        updateLabels(event.target);
+        updateProgress(event.target);
+    }
+
+    function updateValue(slider) {
+        let value = document.getElementById(slider.dataset.valueId);
+
+        value.innerHTML = "<div>" + slider.value + "</div>";
+    }
+
+    function updateValuePosition(slider) {
+        let value = document.getElementById(slider.dataset.valueId);
+
+        const percent = getSliderPercent(slider);
+
+        const sliderWidth = slider.getBoundingClientRect().width;
+        const valueWidth = value.getBoundingClientRect().width;
+        const handleSize = slider.dataset.handleSize;
+
+        let left = percent * (sliderWidth - handleSize) + handleSize / 2 - valueWidth / 2;
+
+        left = Math.min(left, sliderWidth - valueWidth);
+        left = slider.value === slider.min ? 0 : left;
+
+        value.style.left = left + "px";
+    }
+
+    function updateLabels(slider) {
+        const value = document.getElementById(slider.dataset.valueId);
+        const minLabel = document.getElementById(slider.dataset.minLabelId);
+        const maxLabel = document.getElementById(slider.dataset.maxLabelId);
+
+        const valueRect = value.getBoundingClientRect();
+        const minLabelRect = minLabel.getBoundingClientRect();
+        const maxLabelRect = maxLabel.getBoundingClientRect();
+
+        const minLabelDelta = valueRect.left - (minLabelRect.left);
+        const maxLabelDelta = maxLabelRect.left - valueRect.left;
+
+        const deltaThreshold = 32;
+
+        if (minLabelDelta < deltaThreshold) minLabel.classList.add("hidden");
+        else minLabel.classList.remove("hidden");
+
+        if (maxLabelDelta < deltaThreshold) maxLabel.classList.add("hidden");
+        else maxLabel.classList.remove("hidden");
+    }
+
+    function updateProgress(slider) {
+        let progress = document.getElementById(slider.dataset.progressId);
+        const percent = getSliderPercent(slider);
+
+        progress.style.width = percent * 100 + "%";
+    }
+
+    function getSliderPercent(slider) {
+        const range = slider.max - slider.min;
+        const absValue = slider.value - slider.min;
+
+        return absValue / range;
+    }
+
+    function setTicks(slider) {
+        let container = document.getElementById(slider.dataset.tickId);
+        const spacing = parseFloat(slider.dataset.tickStep);
+        const sliderRange = slider.max - slider.min;
+        const tickCount = sliderRange / spacing + 1; // +1 to account for 0
+
+        for (let ii = 0; ii < tickCount; ii++) {
+            let tick = document.createElement("span");
+
+            tick.className = "tick-slider-tick";
+
+            container.appendChild(tick);
+        }
+    }
+
+    function onResize() {
+        const sliders = document.getElementsByClassName("tick-slider-input");
+
+        for (let slider of sliders) {
+            updateValuePosition(slider);
+        }
+    }
+
+    window.onload = init;
+    window.addEventListener("resize", onResize);
+</script> {% endblock %}

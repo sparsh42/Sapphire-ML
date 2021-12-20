@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% load static %} {% block content %} {% if error %}
+<div class="alert alert-danger text-center" role="alert">{{error}}</div>
+{% endif %}
+
+<div class="data-section">
+  <div class="container">
+    <form action="/target-variable/" method="post">
+      {% csrf_token %}
+      <div class="form-group mb-3">
+        <h5>Target Variable</h5>
+        <select class="form-select" id="target-variable" name="target-variable">
+          <option selected>Open this select menu</option>
+          {% for header in headers %}
+          <option value="{{header}}">{{header}}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button class="btn btn-primary">Continue</button>
+    </form>
+  </div>
+</div>
+{% endblock %} {% block script %} {% endblock %}

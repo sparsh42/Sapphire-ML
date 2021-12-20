@@ -1,0 +1,152 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="data-section">
+  <div class="container">
+    {% if error %}
+    <div class="alert alert-danger text-center" role="alert">{{error}}</div>
+    {% endif %}
+    <form action="/outlier/" method="post">
+      {% csrf_token %}
+      <h5>What would you like to do if there are Outlier in your column?</h5>
+
+      {% for col, type, count in outliers_val %}
+      <div style="margin-bottom: 10px">
+        <p style="margin-bottom: 2px">
+          {{ col }} - {% if type == 0 %}Integer data{% elif type == 1 %}Floating
+          Point data{% else %}Categorical data{% endif %} - (Outlier values = {{ count }})
+        </p>
+        {% if type == 0 %}
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row1{{ forloop.counter }}"
+            value="mean"
+            required
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row1{{ forloop.counter }}"
+            >Replace with Mean</label
+          >
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row2{{ forloop.counter }}"
+            value="median"
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row2{{ forloop.counter }}"
+            >Replace with Median</label
+          >
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row3{{ forloop.counter }}"
+            value="mode"
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row3{{ forloop.counter }}"
+            >Replace with Mode</label
+          >
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row4{{ forloop.counter }}"
+            value="drop"
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row4{{ forloop.counter }}"
+            >Drop the rows</label
+          >
+        </div>
+        {% elif type == 1 %}
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row1{{ forloop.counter }}"
+            value="mean"
+            required
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row1{{ forloop.counter }}"
+            >Replace with Mean</label
+          >
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row4{{ forloop.counter }}"
+            value="drop"
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row4{{ forloop.counter }}"
+            >Drop the rows</label
+          >
+        </div>
+        {% else %}
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row1{{ forloop.counter }}"
+            value="mode"
+            required
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row1{{ forloop.counter }}"
+            >Replace with Most Frequent</label
+          >
+        </div>
+        <div class="form-check form-check-inline">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="outlier-row{{ forloop.counter0 }}"
+            id="outlier-row2{{ forloop.counter }}"
+            value="drop"
+          />
+          <label
+            class="form-check-label"
+            for="outlier-row2{{ forloop.counter }}"
+            >Drop the rows</label
+          >
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button class="btn btn-primary">Continue</button>
+    </form>
+    <div class="alert alert-info mt-3">
+      Outliers - Outliers are value points that differs significantly from other
+      observations in the dataset. An outlier may be due to variability in the
+      measurement or it may indicate experimental error. Not all outliers are
+      bad tho. Learn more about outliers
+      <a target="_blank" href="https://en.wikipedia.org/wiki/Outlier">here</a>.
+      Outliers are measured using Z-Score here, with Z >3 displayed as an
+      outlier.
+    </div>
+  </div>
+</div>
+{% endblock %} {% block script %} {% endblock %}

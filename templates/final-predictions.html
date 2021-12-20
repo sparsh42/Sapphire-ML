@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="data-section">
+    <div class="container">
+        {% if error %}
+        <div class="alert alert-danger text-center" role="alert">{{error}}</div>
+        {% endif %}
+        <h3>Final Predictions</h3>
+        <br>
+        <div class="row">
+            <div class="col-lg-4">
+                <h5>SVC</h5>
+                <p>Accuracy - <b>{{final.0.0}}%</b></p>
+                <p>Recall - <b>{{final.0.1}}%</b></p>
+                <p>Precision - <b>{{final.0.2}}%</b></p>
+                <br>
+            </div>
+            <div class="col-lg-4">
+                <h5>RFC</h5>
+                <p>Accuracy - <b>{{final.1.0}}%</b></p>
+                <p>Recall - <b>{{final.1.1}}%</b></p>
+                <p>Precision - <b>{{final.1.2}}%</b></p>
+                <br>
+            </div>
+            <div class="col-lg-4">
+                <h5>DTC</h5>
+                <p>Accuracy - <b>{{final.2.0}}%</b></p>
+                <p>Recall - <b>{{final.2.1}}%</b></p>
+                <p>Precision - <b>{{final.2.2}}%</b></p>
+                <br>
+            </div>
+            <div class="col-lg-4">
+                <h5>KNN</h5>
+                <p>Accuracy - <b>{{final.3.0}}%</b></p>
+                <p>Recall - <b>{{final.3.1}}%</b></p>
+                <p>Precision - <b>{{final.3.2}}%</b></p>
+                <br>
+            </div>
+            <div class="col-lg-4">
+                <h5>LR</h5>
+                <p>Accuracy - <b>{{final.4.0}}%</b></p>
+                <p>Recall - <b>{{final.4.1}}%</b></p>
+                <p>Precision - <b>{{final.4.2}}%</b></p>
+                <br>
+            </div>
+            <div class="col-lg-4">
+                {% if final.5 %}
+                <h5>XGB</h5>
+                <p>Accuracy - <b>{{final.5.0}}%</b></p>
+                <p>Recall - <b>{{final.5.1}}%</b></p>
+                <p>Precision - <b>{{final.5.2}}%</b></p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-3">
+            <h4>Accuracy, Precision and Recall</h4>
+            <p>Learn about their meanings and differences between Accuracy, Precision and Recall <a target="_blank"
+                    href="https://machinelearningmastery.com/precision-recall-and-f-measure-for-imbalanced-classification">here</a>.
+            </p>
+            <p>The hyperparameter 'average' for precision and recall has been set to 'macro'. Learn more <a
+                    target="_blank"
+                    href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.htmln">here</a>.
+            </p>
+            <p>If you are using labels that are not in range of [0,num_class), XGboost might give an error. Read <a
+                    target="_blank"
+                    href='https://stackoverflow.com/questions/48414481/xgboost-error-label-must-be-in-0-num-class-num-class-2'>
+                    for more details.</p>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block script %} {% endblock %}

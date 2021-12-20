@@ -1,0 +1,165 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<div class="data-section">
+  <div class="container">
+    {% if error %}
+    <div class="alert alert-danger text-center" role="alert">{{error}}</div>
+    {% endif %}
+    <form action="/null-column/" method="post">
+      {% csrf_token %}
+
+      <div class="form-group mb-3">
+        <h5>Drop column (We recommend dropping primary keys like ID)</h5>
+        {% for col in headers %}
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="drop-column{{ forloop.counter }}"
+            value="{{col}}"
+            name="drop-column[]"
+          />
+          <label class="form-check-label" for="drop-column{{ forloop.counter }}"
+            >{{col}}</label
+          >
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if isnull_count %}
+      <div class="form-group mb-3">
+        <h5>
+          What would you like to do if there are null value in your column?
+        </h5>
+
+        {% for col, type, count in isnull %}
+        <div style="margin-bottom: 10px">
+          <p style="margin-bottom: 2px">
+            {{ col }} - {% if type == 0 %}Integer data{% elif type == 1 %}Floating Point data{% else %}Categorical data{% endif %} - (Null
+            values = {{ count }})
+          </p>
+          {% if type == 0 %}
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row1{{ forloop.counter }}"
+              value="mean"
+              required
+            />
+            <label class="form-check-label" for="null-row1{{ forloop.counter }}"
+              >Replace with Mean</label
+            >
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row2{{ forloop.counter }}"
+              value="median"
+            />
+            <label class="form-check-label" for="null-row2{{ forloop.counter }}"
+              >Replace with Median</label
+            >
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row3{{ forloop.counter }}"
+              value="mode"
+            />
+            <label class="form-check-label" for="null-row3{{ forloop.counter }}"
+              >Replace with Mode</label
+            >
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row4{{ forloop.counter }}"
+              value="drop"
+            />
+            <label class="form-check-label" for="null-row4{{ forloop.counter }}"
+              >Drop the rows</label
+            >
+          </div>
+          {% elif type == 1 %}
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row1{{ forloop.counter }}"
+              value="mean"
+              required
+            />
+            <label class="form-check-label" for="null-row1{{ forloop.counter }}"
+              >Replace with Mean</label
+            >
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row4{{ forloop.counter }}"
+              value="drop"
+            />
+            <label class="form-check-label" for="null-row4{{ forloop.counter }}"
+              >Drop the rows</label
+            >
+          </div>
+          {% else %}
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row1{{ forloop.counter }}"
+              value="mode"
+              required
+            />
+            <label class="form-check-label" for="null-row1{{ forloop.counter }}"
+              >Replace with Most Frequent</label
+            >
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="null-row{{ forloop.counter0 }}"
+              id="null-row2{{ forloop.counter }}"
+              value="drop"
+            />
+            <label class="form-check-label" for="null-row2{{ forloop.counter }}"
+              >Drop the rows</label
+            >
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <button class="btn btn-primary">Continue</button>
+    </form>
+
+    {% if isnull_count %}
+    <div class="alert alert-info mt-3">
+      Null Values - Null Values are the values that are blank in the dataset.
+      This is not to be confused with 0s in the dataset. These values are
+      necessary to fill or remove, as they are of no value in the dataset and
+      may damage the model. You can learn more about null values
+      <a
+        target="_blank"
+        href="https://www.geeksforgeeks.org/working-with-missing-data-in-pandas"
+        >here</a
+      >.
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} {% block script %} {% endblock %}
