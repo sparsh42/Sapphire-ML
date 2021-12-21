@@ -11,7 +11,7 @@ In order to make ML more accessible for everyone, we created _Sapphire-ML_, a ma
 - Filling the null values
 - Removing/Replacing outliers
 - Shows a correlation heatmap
-- Shows final Accuracy, Precision, Recall using SVC, DTC, RFC and XGB 
+- Shows final Accuracy, Precision, Recall using SVC, DTC, RFC, LR, KNN & XGB 
 
 In addition, all further reading and descriptions are added to the individual pages that will help you expand your knowledge!
 
